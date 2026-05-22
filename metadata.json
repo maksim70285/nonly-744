@@ -1,0 +1,6 @@
+{
+  "name": "Nonly",
+  "description": "The ultra-modern official website and interactive experience of Nonly. Discover tours, participate in exclusive giveaways, shop premium merch, and explore the musical journey in a dark, futuristic aesthetic.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

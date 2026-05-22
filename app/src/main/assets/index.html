@@ -1,0 +1,2184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Nonly | Official Universe</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Syne', 'Inter', 'sans-serif'],
+            sans: ['Outfit', 'Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          },
+          animation: {
+            'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'spin-slow': 'spin 12s linear infinite',
+            'float': 'float 6s ease-in-out infinite',
+            'glow-pulse': 'glowPulse 2s ease-in-out infinite'
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-10px)' }
+            },
+            glowPulse: {
+              '0%, 100%': { opacity: '0.6', filter: 'drop-shadow(0 0 5px var(--glow-color))' },
+              '50%': { opacity: '1.0', filter: 'drop-shadow(0 0 20px var(--glow-color))' }
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;500;700&family=Outfit:wght@200;400;600;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  
+  <!-- Material Symbols for beautiful modern futuristic custom cursor and interface icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,1,0" rel="stylesheet">
+
+  <!-- Vue 3 CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.min.js"></script>
+
+  <style>
+    /* Custom Styling properties */
+    :root {
+      --accent: #FF5C00;
+      --accent-rgb: 255, 92, 0;
+      --glass: rgba(255, 255, 255, 0.05);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --glow-color: rgba(255, 92, 0, 0.4);
+    }
+
+    body {
+      background-color: #050508;
+      color: #ffffff;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.6);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--accent);
+      border-radius: 3px;
+    }
+
+    /* Custom high fidelity frosted glass cards */
+    .glass-panel {
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .glass-panel:hover {
+      box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+
+    .active-outline {
+      border-color: var(--accent) !important;
+      box-shadow: 0 0 15px rgba(var(--accent-rgb), 0.25);
+    }
+
+    .accent-text-glowing {
+      text-shadow: 0 0 12px var(--glow-color);
+    }
+
+    /* Cinematic particles layer */
+    canvas#particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0.75;
+    }
+
+    /* Ambient glow elements */
+    .mesh-glow {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      filter: blur(140px);
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.25;
+      transition: all 1s ease;
+    }
+
+    .accent-bg {
+      background: var(--accent);
+    }
+    .accent-border {
+      border-color: var(--accent);
+    }
+    .accent-text {
+      color: var(--accent);
+    }
+
+    /* Sound Visualizer bars */
+    .vis-bar {
+      width: 3px;
+      background-color: var(--accent);
+      border-radius: 1px;
+      display: inline-block;
+      margin: 0 1px;
+      height: 4px;
+      transition: height 0.1s ease;
+    }
+
+    /* Active Tab Glow */
+    .tab-active {
+      color: var(--accent);
+      text-shadow: 0 0 10px rgba(var(--accent-rgb), 0.5);
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Custom transitions */
+    .fade-enter-active, .fade-leave-active {
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .fade-enter-from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    .fade-leave-to {
+      opacity: 0;
+      transform: translateY(-12px);
+    }
+
+    /* Hover interactive styling */
+    .btn-expensive {
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .btn-expensive::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(0deg, rgba(var(--accent-rgb), 0.15) 0%, transparent 100%);
+      transition: all 0.3s ease;
+      z-index: -1;
+    }
+    .btn-expensive:hover::after {
+      top: 0;
+    }
+
+    /* Merch 3D perspective effect */
+    .merch-wrapper {
+      perspective: 1000px;
+    }
+    .merch-card {
+      transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      transform-style: preserve-3d;
+    }
+    .merch-card:hover {
+      transform: rotateY(6deg) rotateX(4deg) translateZ(5px);
+    }
+
+    /* Glitch screen effect trigger */
+    .screen-glitch {
+      animation: glitchAnim 0.3s linear infinite;
+    }
+    @keyframes glitchAnim {
+      0% { transform: translate(1px, 1px) rotate(0deg); filter: hue-rotate(0deg); }
+      20% { transform: translate(-2px, -1px) rotate(-1deg); filter: grayscale(0.2); }
+      40% { transform: translate(-1px, 2px) rotate(1deg); filter: hue-rotate(90deg); }
+      60% { transform: translate(2px, 1px) rotate(0deg); filter: contrast(1.5); }
+      80% { transform: translate(-1px, -1px) rotate(2deg); filter: saturate(1.8); }
+      100% { transform: translate(1px, 2px) rotate(-1deg); filter: hue-rotate(360deg); }
+    }
+  </style>
+</head>
+<body class="tracking-wide text-zinc-100 select-none">
+
+  <!-- Particle Background behind all elements -->
+  <canvas id="particles"></canvas>
+
+  <div id="app" class="relative min-h-screen flex flex-col justify-between overflow-hidden z-10" :class="{ 'screen-glitch': glitchActive }">
+
+    <!-- Ambient Ambient Colors Glowing in background (Dynamic) -->
+    <div class="mesh-glow pointer-events-none" :style="{ left: '-150px', top: '20%', background: accentColor, opacity: 0.15 }"></div>
+    <div class="mesh-glow pointer-events-none" :style="{ right: '-150px', bottom: '15%', background: '#7000FF', opacity: 0.1 }"></div>
+    
+    <!-- Dynamic Cinematic Preloader -->
+    <div v-if="loading" class="fixed inset-0 z-50 bg-[#040407] flex flex-col items-center justify-center transition-all duration-1000" :class="{ 'opacity-0 pointer-events-none': !loading }">
+      <div class="relative flex flex-col items-center space-y-6">
+        <!-- Logo ring glowing -->
+        <div class="relative w-28 h-28 rounded-full border border-white/10 flex items-center justify-center">
+          <div class="absolute inset-0 rounded-full border-2 border-transparent border-t-orange-500 animate-spin" :style="{ 'border-top-color': accentColor }"></div>
+          <span class="font-display font-extrabold text-4xl tracking-wider select-none" :style="{ 'color': accentColor }">N</span>
+        </div>
+        <!-- Progress percentage indicator -->
+        <div class="text-center">
+          <h2 class="text-xs font-mono uppercase tracking-[0.5em] text-zinc-400">Syncing Universe</h2>
+          <div class="text-2xl font-mono font-bold mt-2" :style="{ 'color': accentColor }">{{ preloaderProgress }}%</div>
+        </div>
+        <!-- Simple text ticker -->
+        <div class="h-4 overflow-hidden text-[10px] font-mono text-zinc-500 uppercase tracking-widest text-center">
+          <p v-if="preloaderProgress < 30">Allocating storage streams...</p>
+          <p v-else-if="preloaderProgress < 65">Modulating atmospheric frequencies...</p>
+          <p v-else-if="preloaderProgress < 90">Stabilizing core aesthetics...</p>
+          <p v-else>Connected to Nonly.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Global Notifications Toast -->
+    <div class="fixed top-6 left-1/2 -translate-x-1/2 z-40 w-full max-w-sm px-4 pointer-events-none flex flex-col space-y-2">
+      <div v-for="toast in toasts" :key="toast.id" 
+           class="glass-panel rounded-2xl p-4 flex items-center space-x-3 pointer-events-auto border border-white/10 shadow-lg animate-bounce"
+           style="animation-duration: 0.5s;">
+        <span class="material-symbols-outlined text-sm" :style="{ color: accentColor }">info</span>
+        <div class="flex-1">
+          <p class="text-xs font-semibold text-white">Event Broadcast</p>
+          <p class="text-[10px] text-zinc-300">{{ toast.text }}</p>
+        </div>
+        <button @click="dismissToast(toast.id)" class="text-zinc-500 hover:text-white transition-colors">
+          <span class="material-symbols-outlined text-xs">close</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- MAIN HEADER -->
+    <header class="relative z-20 w-full px-6 py-5 flex items-center justify-between border-b border-white/[0.03] backdrop-blur-md">
+      <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-lg transform hover:scale-105 active:scale-95 transition-all" @click="handleLogoClick">
+          <span class="text-black font-display font-extrabold text-sm">N</span>
+        </div>
+        <div class="flex flex-col">
+          <span class="text-[10px] font-mono tracking-widest text-zinc-500 uppercase leading-none">Official Site</span>
+          <div class="flex items-center space-x-1.5 mt-0.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping"></span>
+            <span class="text-[9px] font-mono text-zinc-300 uppercase tracking-wider font-semibold">{{ fakeLiveCount }} Connected</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Compact Audio Stream / Synth visualizer widget -->
+      <div class="glass-panel px-4 py-1.5 rounded-full flex items-center space-x-3">
+        <div class="flex items-center space-x-1 cursor-pointer" @click="toggleSoundtrack" title="Toggle background pad synthesis">
+          <!-- Small bars pulsing -->
+          <div v-for="bar in 6" :key="bar" class="vis-bar" :style="{
+            height: padActive ? (visualizerPulseWaves[bar-1] || '4px') : '4px',
+            backgroundColor: accentColor
+          }"></div>
+        </div>
+        <div class="flex flex-col text-right">
+          <span class="text-[9px] font-mono text-zinc-500 uppercase leading-none">Ambient Sound</span>
+          <button @click="toggleSoundtrack" class="text-[10px] font-semibold tracking-wider hover:text-zinc-100 uppercase" :style="{ color: padActive ? accentColor : '#9CA3AF' }">
+            {{ padActive ? 'Active' : 'Disabled' }}
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN IMMERSIVE VIEWPORT -->
+    <main class="flex-1 overflow-y-auto px-4 py-6 md:p-12 max-w-5xl w-full mx-auto pb-28 relative">
+      <transition name="fade" mode="out-in">
+        
+        <!-- SECTION 1: HOME -->
+        <div v-if="activeTab === 'home'" key="home" class="space-y-8 animate-fade-in">
+          <!-- Big Epic Hero block -->
+          <div class="text-center md:text-left md:flex items-center justify-between py-6 md:py-16">
+            <div class="space-y-4 max-w-lg">
+              <span class="text-[10px] font-mono uppercase tracking-[0.4em]" :style="{ color: accentColor }">Global Electronic / Ambient Artistry</span>
+              <h1 class="text-7xl md:text-9xl font-display font-extrabold uppercase leading-none tracking-tighter" :style="{ textShadow: '0 0 40px ' + glowColor }">
+                {{ staticContent.heroName }}
+              </h1>
+              <p class="text-sm text-zinc-400 font-light leading-relaxed">
+                {{ staticContent.heroDescription }}
+              </p>
+              
+              <!-- Core Action CTA triggers -->
+              <div class="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-4">
+                <button @click="navigate('tours')" class="px-6 py-3 rounded-full text-black font-bold text-xs uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-md btn-expensive bg-white" :style="{ hoverBackground: accentColor }">
+                  Explore Tours
+                </button>
+                <button @click="playSecretIntroAnim" class="px-5 py-3 rounded-full text-xs font-semibold tracking-widest uppercase border border-white/10 bg-white/5 hover:bg-white/10 active:scale-95 transition-all">
+                  Run Cosmic Pulse
+                </button>
+              </div>
+            </div>
+
+            <!-- Interactivity Widget block -->
+            <div class="mt-8 md:mt-0 glass-panel p-6 rounded-3xl w-full max-w-sm mx-auto md:mx-0 space-y-4 relative">
+              <p class="text-[9px] font-mono uppercase tracking-widest text-zinc-400">Current Cosmic Feed</p>
+              
+              <!-- Micro Activity stream -->
+              <div class="relative h-20 overflow-hidden border-b border-white/[0.05] pb-2">
+                <transition-group name="fade">
+                  <div v-for="act in activeLog" :key="act.id" class="text-[11px] font-light text-zinc-300 leading-snug">
+                    <span class="font-bold font-mono text-[9px] rounded px-1.5 py-0.5 bg-white/5 mr-1" :style="{ color: accentColor }">PASS</span>
+                    <span>{{ act.text }}</span>
+                    <p class="text-[9px] text-zinc-500 font-mono mt-0.5">{{ act.time }}</p>
+                  </div>
+                </transition-group>
+              </div>
+
+              <!-- Compact Live Statistics -->
+              <div class="grid grid-cols-2 gap-4 pt-2 text-center md:text-left">
+                <div>
+                  <h4 class="text-[9px] font-mono text-zinc-500 uppercase">Interactive Token Map</h4>
+                  <p class="text-sm font-semibold tracking-wide">0.05 ETH <span class="text-xs text-green-400">+4.2%</span></p>
+                </div>
+                <div>
+                  <h4 class="text-[9px] font-mono text-zinc-500 uppercase">Giveaway Tickets</h4>
+                  <p class="text-sm font-semibold tracking-wide" :style="{ color: accentColor }">{{ giveawayEntriesCount }} Active</p>
+                </div>
+              </div>
+
+              <!-- Quick direct enter widget -->
+              <div class="pt-2">
+                <button @click="navigate('giveaways')" class="w-full py-2.5 rounded-xl font-mono text-[10px] uppercase font-bold tracking-widest transition-all transform hover:translate-y-[-2px] text-white flex items-center justify-center space-x-2 bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/30">
+                  <span>Enter Current Drop</span>
+                  <span class="material-symbols-outlined text-xs">arrow_forward</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Subtle horizontal divider -->
+          <div class="h-px bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>
+
+          <!-- Mini News Feature highlights -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div v-for="news in newsFeed.slice(0, 3)" :key="news.id" class="glass-panel p-5 rounded-3xl space-y-3">
+              <span class="text-[8px] font-mono font-bold px-2 py-0.5 rounded-full bg-white/5 uppercase" :style="{ color: accentColor }">{{ news.tag }}</span>
+              <h3 class="text-sm font-semibold tracking-wide">{{ news.title }}</h3>
+              <p class="text-[11px] text-zinc-400 font-light line-clamp-2">{{ news.excerpt }}</p>
+              <div class="flex justify-between items-center pt-2">
+                <span class="text-[9px] font-mono text-zinc-500">{{ news.date }}</span>
+                <button @click="navigate('news')" class="text-[9px] font-mono text-white underline hover:opacity-80">Read</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 2: TOURS -->
+        <div v-else-if="activeTab === 'tours'" key="tours" class="space-y-6">
+          <div class="text-center space-y-2 mb-8">
+            <h2 class="text-4xl font-display font-bold uppercase tracking-tight">Worldwide Tour Schedule</h2>
+            <p class="text-xs text-zinc-500 uppercase tracking-widest">Select city to secure real-time digital pass keys</p>
+          </div>
+
+          <!-- Chronological Tour Grid -->
+          <div class="space-y-4">
+            <div v-for="tour in activeTours" :key="tour.id" 
+                 class="glass-panel rounded-3xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 relative overflow-hidden"
+                 :class="{ 'border-orange-500/20': !tour.soldOut, 'border-red-600/30 opacity-70': tour.soldOut }">
+              
+              <!-- Colored side glow for active tours -->
+              <div v-if="!tour.soldOut" class="absolute left-0 top-0 bottom-0 w-1 accent-bg"></div>
+
+              <!-- Main Card info -->
+              <div class="flex items-center space-x-4">
+                <!-- Date Badge Block -->
+                <div class="w-14 h-14 rounded-2xl bg-white/5 flex flex-col items-center justify-center border border-white/10 px-2"
+                     :style="{ borderColor: !tour.soldOut ? accentColor + '33' : 'transparent' }">
+                  <span class="text-[9px] font-bold uppercase leading-none opacity-50">{{ parseTourDateMonth(tour.date) }}</span>
+                  <span class="text-lg font-extrabold leading-none mt-0.5" :style="{ color: !tour.soldOut ? accentColor : '#9CA3AF' }">
+                    {{ parseTourDateDay(tour.date) }}
+                  </span>
+                </div>
+                <!-- Location -->
+                <div>
+                  <h3 class="text-base font-semibold tracking-wide">{{ tour.city }}, {{ tour.country }}</h3>
+                  <p class="text-xs text-zinc-400">{{ tour.venue }}</p>
+                </div>
+              </div>
+
+              <!-- Right-aligned details and purchase action -->
+              <div class="flex flex-col md:flex-row md:items-center gap-4">
+                <div class="text-right">
+                  <span class="text-[10px] font-mono text-zinc-500 uppercase block">Ticket Status</span>
+                  <span class="text-xs font-bold uppercase tracking-wider block mt-0.5" :style="{ color: tour.soldOut ? '#EF4444' : '#10B981' }">
+                    {{ tour.soldOut ? 'Sold Out' : 'Selling Fast' }}
+                  </span>
+                </div>
+                
+                <!-- Countdown or alert -->
+                <div v-if="!tour.soldOut" class="border-t md:border-t-0 md:border-l border-white/[0.08] pt-2 md:pt-0 md:pl-4">
+                  <p class="text-[9px] font-mono text-zinc-500 uppercase">Closes in</p>
+                  <p class="text-[11px] font-mono font-semibold text-zinc-300">
+                    {{ tour.timeLeft || '14 hours' }}
+                  </p>
+                </div>
+
+                <!-- Open Ticket generator modal booking -->
+                <button :disabled="tour.soldOut" 
+                        @click="openBookingModal(tour)"
+                        class="px-6 py-2.5 rounded-full text-xs font-extrabold uppercase tracking-widest transition-all hover:scale-105 active:scale-95 text-center mt-2 md:mt-0"
+                        :class="tour.soldOut ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed border border-transparent' : 'bg-white text-black hover:bg-orange-500'">
+                  {{ tour.soldOut ? 'SOLD OUT' : 'BOOK PASS' }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 3: TICKETS (VIRTUAL WALLET) -->
+        <div v-else-if="activeTab === 'tickets'" key="tickets" class="space-y-6">
+          <div class="text-center space-y-2 mb-8">
+            <h2 class="text-4xl font-display font-bold uppercase tracking-tight">Cosmic Ticket Passbook</h2>
+            <p class="text-xs text-zinc-500 uppercase tracking-widest">Instantly review, simulate, and hold your interactive artist membership tickets</p>
+          </div>
+
+          <div v-if="userTickets.length === 0" class="glass-panel rounded-3xl p-10 text-center space-y-4 max-w-md mx-auto">
+            <span class="material-symbols-outlined text-4xl opacity-40 block" :style="{ color: accentColor }">confirmation_number</span>
+            <h3 class="text-base font-semibold">No Ticket Passes Available</h3>
+            <p class="text-xs text-zinc-400 font-light leading-relaxed">
+              Explore the Tours page to book a virtual VIP ticket pass. Once secured, your ticket generates fully functional neon-visual badges here!
+            </p>
+            <button @click="navigate('tours')" class="px-5 py-2.5 rounded-full text-xs font-extrabold uppercase tracking-widest border border-white/10 bg-white/5 hover:bg-white/10 transition-all">
+              Tours Directory
+            </button>
+          </div>
+
+          <!-- Simulated Tickets list -->
+          <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div v-for="t in userTickets" :key="t.id" class="glass-panel rounded-3xl overflow-hidden shadow-2xl relative border-white/10">
+              <!-- Animated Glowing side -->
+              <div class="h-2 bg-gradient-to-r" :style="{ background: 'linear-gradient(90deg, ' + accentColor + ', #7000FF)' }"></div>
+              
+              <div class="p-6 space-y-4">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <span class="text-[9px] font-mono uppercase px-2 py-0.5 rounded bg-white/10 text-zinc-300">{{ t.tier }} Tier</span>
+                    <h3 class="text-lg font-bold uppercase mt-1.5">{{ t.city }} Live Show</h3>
+                  </div>
+                  <span class="material-symbols-outlined text-4xl" :style="{ color: accentColor + '77' }">qr_code_2</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 text-xs">
+                  <div>
+                    <span class="text-[9px] font-mono text-zinc-500 uppercase block">Pass Holder</span>
+                    <span class="font-medium text-white">{{ t.name }}</span>
+                  </div>
+                  <div>
+                    <span class="text-[9px] font-mono text-zinc-500 uppercase block">Purchase Date</span>
+                    <span class="font-medium text-white">{{ t.date_bought }}</span>
+                  </div>
+                  <div>
+                    <span class="text-[9px] font-mono text-zinc-500 uppercase block">Verification Code</span>
+                    <span class="font-mono text-xs font-semibold text-zinc-300">{{ t.code }}</span>
+                  </div>
+                  <div>
+                    <span class="text-[9px] font-mono text-zinc-500 uppercase block">Wallet Link</span>
+                    <span class="text-[10px] text-zinc-400 truncate block">NONLY://PASS-{{ t.id }}</span>
+                  </div>
+                </div>
+
+                <!-- Decorative Dot separator -->
+                <div class="relative flex items-center justify-between py-1">
+                  <div class="absolute left-[-26px] w-4 h-4 rounded-full bg-[#050508] border-r border-white/10"></div>
+                  <div class="w-full border-t border-dashed border-white/20"></div>
+                  <div class="absolute right-[-26px] w-4 h-4 rounded-full bg-[#050508] border-l border-white/10"></div>
+                </div>
+
+                <!-- Simulated Barcode panel -->
+                <div class="text-center p-3 bg-black/40 rounded-xl space-y-2">
+                  <div class="h-8 flex justify-center items-stretch space-x-0.5 opacity-80 overflow-hidden">
+                    <div v-for="n in 34" :key="n" class="bg-white" 
+                         :class="[ n % 3 === 0 ? 'w-[1px]' : n % 5 === 0 ? 'w-[4px]' : n % 2 === 0 ? 'w-[2px]' : 'w-[1px]' ]"></div>
+                  </div>
+                  <span class="text-[8px] font-mono uppercase tracking-widest text-zinc-500">Transaction Secured by blockchain map ledger</span>
+                </div>
+
+                <!-- Cancel Booking Option -->
+                <div class="text-right pt-2 border-t border-white/[0.05]">
+                  <button @click="voidTicket(t.id)" class="text-[10px] text-red-400 hover:text-red-300 font-semibold tracking-wider uppercase">
+                    Void Pass Keys
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 4: GIVEAWAYS (CONFETTI & WHEEL) -->
+        <div v-else-if="activeTab === 'giveaways'" key="giveaways" class="space-y-6">
+          <div class="text-center space-y-2 mb-8">
+            <h2 class="text-4xl font-display font-bold uppercase tracking-tight">Interactive Cosmic Drop</h2>
+            <p class="text-xs text-zinc-500 uppercase tracking-widest">Spin the wheel to win VIP Backstage keys, physical signages, and premium coins</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+            <!-- Left Pane: Spin Wheel Visualizer -->
+            <div class="glass-panel rounded-3xl p-6 text-center space-y-6 relative overflow-hidden flex flex-col items-center justify-center">
+              <p class="text-[9px] font-mono uppercase tracking-widest text-zinc-400">Atmospheric Quantum Rotor</p>
+
+              <!-- Circle Spinner container -->
+              <div class="relative w-72 h-72 rounded-full border-4 border-white/10 flex items-center justify-center bg-black/60 shadow-inner max-w-full">
+                <!-- Center Needle pointer icon -->
+                <div class="absolute top-[-10px] left-1/2 -translate-x-1/2 z-20 w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-t-[20px] transition-all" 
+                     :style="{ borderTopColor: accentColor }"></div>
+                
+                <!-- Wheel Rotation Wrapper -->
+                <div id="wheel" class="absolute w-full h-full rounded-full overflow-hidden transition-transform ease-out flex items-center justify-center" 
+                     :style="{ transform: 'rotate(' + wheelDegree + 'deg)', transitionDuration: wheelTransition }">
+                     
+                  <!-- Wheel slices drawing segment borders -->
+                  <div class="absolute inset-0 w-full h-full">
+                    <div v-for="(slice, i) in wheelPrizes" :key="i"
+                         class="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-start origin-center pt-4"
+                         :style="{ transform: 'rotate(' + (i * (360 / wheelPrizes.length)) + 'deg)' }">
+                      
+                      <!-- Slice text -->
+                      <span class="text-[9px] font-mono uppercase tracking-widest font-bold block pt-2 transform rotate-180 text-center" 
+                            :style="{ color: i % 2 === 0 ? accentColor : '#FFFFFF' }">
+                        {{ slice }}
+                      </span>
+                      <!-- Separator line -->
+                      <div class="w-px h-1/2 bg-white/10 absolute top-0 origin-bottom" :style="{ transform: 'rotate(' + (180 / wheelPrizes.length) + 'deg)' }"></div>
+                    </div>
+                  </div>
+
+                  <!-- Slice graphics center glowing node -->
+                  <div class="absolute w-12 h-12 rounded-full bg-zinc-900 border border-white/20 flex items-center justify-center z-10 shadow-lg">
+                    <span class="text-[10px] font-mono font-bold" :style="{ color: accentColor }">NONLY</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Spin Button Control -->
+              <div class="space-y-2 w-full">
+                <button :disabled="spinning || virtualCoins < 10" 
+                        @click="spinTheWheel"
+                        class="w-full py-3.5 rounded-full text-xs font-bold uppercase tracking-widest transition-all ease-in hover:scale-105 active:scale-95 disabled:opacity-50 flex items-center justify-center space-x-2 bg-white text-black"
+                        :style="{ hoverBackground: accentColor }">
+                  <span class="material-symbols-outlined text-sm">rotate_left</span>
+                  <span>{{ spinning ? 'ROTATING...' : 'SPIN WHEEL (10 COINS)' }}</span>
+                </button>
+                <p class="text-[10px] text-zinc-500 font-mono">Current Balance: <span class="font-bold text-white">{{ virtualCoins }} Cosmic Coins</span></p>
+                <button @click="claimDailyCoins" class="text-[10px] text-zinc-400 underline hover:text-zinc-100">Claim 50 Free Daily Coins</button>
+              </div>
+            </div>
+
+            <!-- Right Pane: Giveaway list / Enter Draw Form -->
+            <div class="space-y-6">
+              <div class="glass-panel p-6 rounded-3xl space-y-4">
+                <h3 class="text-sm font-semibold tracking-wide uppercase">Open Global VIP Drawing</h3>
+                <p class="text-xs text-zinc-400 font-light leading-relaxed">
+                  Every Sunday evening Nonly draws random active wallet addresses from participants list for free access to physical tour passes, limited pre-release Vinyl LP records, and personal chat tickets!
+                </p>
+
+                <div class="p-4 rounded-2xl bg-zinc-950 border border-white/5 space-y-2">
+                  <div class="flex justify-between text-xs font-mono">
+                    <span class="text-zinc-500 uppercase">Interactive Prize:</span>
+                    <span class="font-bold uppercase" :style="{ color: accentColor }">2x Ultimate Front Row MANCHESTER passes</span>
+                  </div>
+                  <div class="flex justify-between text-xs font-mono">
+                    <span class="text-zinc-500 uppercase">Draw Countdown:</span>
+                    <span class="font-bold text-zinc-200">23h : 15m : 42s</span>
+                  </div>
+                  <div class="flex justify-between text-xs font-mono">
+                    <span class="text-zinc-500">Already Registered:</span>
+                    <span class="font-bold text-zinc-200">{{ giveawayEntriesCount }} Participants</span>
+                  </div>
+                </div>
+
+                <!-- Registration input form -->
+                <form @submit.prevent="registerForGiveaway" class="space-y-3 pt-2">
+                  <div>
+                    <label class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Fan Identification Name</label>
+                    <input type="text" v-model="giveawayRegName" required placeholder="eg. Sarah from Tokyo" 
+                           class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-zinc-100 outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all">
+                  </div>
+                  <div>
+                    <label class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Electronic Digital Email Address</label>
+                    <input type="email" v-model="giveawayRegEmail" required placeholder="eg. sarah@cosmic.com" 
+                           class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-zinc-100 outline-none focus:border-orange-500 focus:focus:ring-orange-500 transition-all">
+                  </div>
+                  <button type="submit" class="w-full py-3 rounded-full text-xs font-bold uppercase tracking-widest text-zinc-300 border border-white/10 bg-white/5 hover:bg-white/10 hover:text-white transition-all active:scale-95">
+                    Submit Registration Pass
+                  </button>
+                </form>
+              </div>
+
+              <!-- Live Drawing Results block -->
+              <div class="glass-panel p-5 rounded-3xl space-y-3">
+                <h4 class="text-xs font-semibold tracking-wider uppercase">Historical Drawing Winners</h4>
+                <div class="space-y-2">
+                  <div v-for="winner in raffleWinners" :key="winner.id" class="flex justify-between items-center text-xs font-mono border-b border-white/[0.03] pb-1.5 text-zinc-300">
+                    <div class="flex items-center space-x-2">
+                      <span class="material-symbols-outlined text-[12px] text-green-400">stars</span>
+                      <span>{{ winner.name }}</span>
+                    </div>
+                    <span class="text-zinc-500">{{ winner.prize }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 5: GALLERY -->
+        <div v-else-if="activeTab === 'gallery'" key="gallery" class="space-y-6">
+          <div class="text-center space-y-2 mb-8">
+            <h2 class="text-4xl font-display font-bold uppercase tracking-tight">Cinematic Visual Gallery</h2>
+            <p class="text-xs text-zinc-500 uppercase tracking-widest">Atmospheric snapshots, concert frames, and exclusive artistic prompts</p>
+          </div>
+
+          <!-- Asymmetric Visual Grid of images -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div v-for="(img, i) in galleryData" :key="i"
+                 @click="openLightbox(img)"
+                 class="glass-panel rounded-3xl overflow-hidden cursor-pointer relative group flex items-center justify-center min-h-[220px]"
+                 :class="{ 'md:col-span-2': img.size === 'large' }">
+              
+              <!-- Ambient Color box while loading/substituting -->
+              <div class="absolute inset-0 bg-gradient-to-tr opacity-25" :style="{ from: accentColor, to: '#312E81' }"></div>
+              
+              <!-- Actual image placeholder template containing modern cinematic text and abstract designs, so user gets pristine luxurious feeling of premium art without relying on broken links. -->
+              <div class="absolute inset-0 flex flex-col justify-end p-6 bg-gradient-to-t from-black/80 via-black/30 to-black/10 transition-opacity">
+                <!-- Glow elements -->
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-500 scale-90 group-hover:scale-100 w-12 h-12 rounded-full flex items-center justify-center bg-white/10 backdrop-blur">
+                  <span class="material-symbols-outlined text-white text-lg">zoom_in</span>
+                </div>
+
+                <div class="z-10 text-left space-y-1">
+                  <span class="text-[8px] font-mono uppercase tracking-widest opacity-60" :style="{ color: accentColor }">{{ img.category }}</span>
+                  <h3 class="text-sm font-semibold tracking-wide uppercase">{{ img.title }}</h3>
+                  <p class="text-[10px] text-zinc-400 font-mono">{{ img.date }}</p>
+                </div>
+              </div>
+
+              <!-- High fidelity fallback graphics -->
+              <div class="p-6 text-center z-0 transform scale-95 group-hover:scale-100 transition-transform duration-700 select-none">
+                <span class="font-display font-extrabold text-[#ffffff20] text-7xl select-none">N{{ i + 1 }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 6: NEWS -->
+        <div v-else-if="activeTab === 'news'" key="news" class="space-y-6">
+          <div class="text-center space-y-2 mb-8">
+            <h2 class="text-4xl font-display font-bold uppercase tracking-tight">Cosmic News Feed</h2>
+            <p class="text-xs text-zinc-500 uppercase tracking-widest">Official announcements, design system updates, and behind-the-scene narratives</p>
+          </div>
+
+          <!-- Timeline articles -->
+          <div class="space-y-8">
+            <div v-for="news in newsFeed" :key="news.id" class="glass-panel p-6 rounded-3xl relative overflow-hidden flex flex-col md:flex-row gap-6">
+              <div class="md:w-1/4 flex flex-col justify-between border-b md:border-b-0 md:border-r border-white/[0.05] pb-4 md:pb-0 md:pr-4">
+                <div>
+                  <span class="text-[9px] font-mono tracking-widest text-zinc-500 block">Publication Date</span>
+                  <p class="text-xs font-bold text-zinc-300 mt-1 uppercase">{{ news.date }}</p>
+                </div>
+                <div class="mt-4">
+                  <span class="text-[9px] font-mono tracking-widest text-zinc-500 block">Broadcasting channel</span>
+                  <p class="text-[10px] text-orange-500 font-mono font-bold mt-1 uppercase" :style="{ color: accentColor }">{{ news.tag }}</p>
+                </div>
+              </div>
+
+              <div class="md:w-3/4 space-y-3">
+                <h3 class="text-xl font-semibold tracking-wide">{{ news.title }}</h3>
+                <p class="text-sm text-zinc-300 font-light leading-relaxed whitespace-pre-line">{{ news.content }}</p>
+                
+                <!-- Like Widget indicator -->
+                <div class="flex items-center space-x-4 pt-2">
+                  <button @click="likeNews(news.id)" class="flex items-center space-x-1.5 text-xs font-mono text-zinc-400 hover:text-white transition-colors">
+                    <span class="material-symbols-outlined text-[13px]" :style="{ color: news.liked ? accentColor : '#9CA3AF' }">favorite</span>
+                    <span>{{ news.likes }} Reactions</span>
+                  </button>
+                  <span class="text-[10px] text-zinc-500 font-mono">ID: N-{{ news.id }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 7: MERCH -->
+        <div v-else-if="activeTab === 'merch'" key="merch" class="space-y-6">
+          <div class="text-center space-y-2 mb-8">
+            <h2 class="text-4xl font-display font-bold uppercase tracking-tight">Premium Apparel Exhibit</h2>
+            <p class="text-xs text-zinc-500 uppercase tracking-widest">Secure high aesthetic limited memorabilia direct to your world address</p>
+          </div>
+
+          <!-- Shopping Cart Checkout drawer trigger -->
+          <div class="flex justify-between items-center glass-panel p-4 rounded-3xl mb-4">
+            <div class="flex items-center space-x-3">
+              <span class="material-symbols-outlined" :style="{ color: accentColor }">shopping_cart</span>
+              <div>
+                <span class="text-[10px] font-mono text-zinc-500 block uppercase">Apparel Cart</span>
+                <span class="text-xs font-semibold text-zinc-300">{{ cartCount }} items in basket</span>
+              </div>
+            </div>
+            <button @click="openCartDrawer" class="px-5 py-2 rounded-full text-xs font-bold uppercase tracking-widest bg-white text-black hover:opacity-90">
+              View Cart / Checkout
+            </button>
+          </div>
+
+          <!-- Merch items grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 merch-wrapper">
+            <div v-for="item in merchCatalog" :key="item.id" 
+                 class="glass-panel rounded-3xl overflow-hidden shadow-xl flex flex-col justify-between p-5 space-y-4 relative merch-card">
+              
+              <!-- Subtle decorative mesh back -->
+              <div class="h-44 bg-zinc-950/80 rounded-2xl border border-white/5 flex flex-col items-center justify-center relative overflow-hidden group">
+                <span class="font-display font-black text-6xl text-white/[0.015] absolute group-hover:scale-110 transition-transform duration-500">{{ item.name.split(' ')[0] }}</span>
+                <span class="material-symbols-outlined text-4xl text-zinc-600 block opacity-40 group-hover:scale-110 transition-transform duration-500" :style="{ color: item.size === 'Limited' ? accentColor : 'inherit' }">
+                  {{ item.icon }}
+                </span>
+                <span v-if="item.limited" class="absolute top-3 right-3 text-[8px] font-mono bg-orange-500 text-black px-2 py-0.5 rounded-full font-bold uppercase" :style="{ backgroundColor: accentColor }">Limited Drop</span>
+              </div>
+
+              <div class="space-y-1">
+                <h3 class="text-sm font-semibold tracking-wide">{{ item.name }}</h3>
+                <p class="text-xs text-zinc-400 font-light line-clamp-1">{{ item.description }}</p>
+                <div class="flex justify-between items-center pt-2">
+                  <span class="text-sm font-bold mt-1" :style="{ color: accentColor }">{{ item.price }} Coins</span>
+                  <span class="text-[10px] font-mono text-zinc-500 uppercase">{{ item.size }}</span>
+                </div>
+              </div>
+
+              <button @click="addToCart(item)" class="w-full py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest border border-white/15 bg-white/5 hover:bg-white/10 active:scale-95 transition-all text-white">
+                Add To Cart
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 8: CONTACTS & SECRET TERMINAL -->
+        <div v-else-if="activeTab === 'contacts'" key="contacts" class="space-y-6">
+          <div class="text-center space-y-2 mb-8">
+            <h2 class="text-4xl font-display font-bold uppercase tracking-tight">Interactive Transmission</h2>
+            <p class="text-xs text-zinc-500 uppercase tracking-widest">Connect with our core aesthetic nodes or execute terminal protocols</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Left Info Pane -->
+            <div class="glass-panel p-6 rounded-3xl space-y-6">
+              <h3 class="text-sm font-semibold tracking-wide uppercase">Electronic Address Map</h3>
+              
+              <div class="space-y-4">
+                <div class="flex items-center space-x-3">
+                  <span class="material-symbols-outlined text-xl" :style="{ color: accentColor }">mail</span>
+                  <div>
+                    <span class="text-[10px] text-zinc-500 uppercase font-mono block">Press & Synopses</span>
+                    <a href="mailto:press@nonlyuniverse.com" class="text-xs text-white hover:underline">press@nonlyuniverse.com</a>
+                  </div>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                  <span class="material-symbols-outlined text-xl" :style="{ color: accentColor }">share_location</span>
+                  <div>
+                    <span class="text-[10px] text-zinc-500 uppercase font-mono block">Creative HQ Node</span>
+                    <p class="text-xs text-white">Grid Zone 404, London, UK</p>
+                  </div>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                  <span class="material-symbols-outlined text-xl" :style="{ color: accentColor }">hub</span>
+                  <div>
+                    <span class="text-[10px] text-zinc-500 uppercase font-mono block">Aesthetic Syndicate Link</span>
+                    <p class="text-xs text-white">Web Base 2026.5</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Newsletter Form -->
+              <div class="border-t border-white/[0.05] pt-4 space-y-3">
+                <h4 class="text-xs font-semibold tracking-wide uppercase">Broadcast Presave List</h4>
+                <p class="text-[11px] text-zinc-400 font-light leading-relaxed">
+                  Join the pre-save list to auto-receive high frequency downloads, private audio links, and concert ticket coupons.
+                </p>
+                <form @submit.prevent="submitNewsletter" class="flex items-center space-x-2">
+                  <input type="email" v-model="newsLetterEmail" required placeholder="Pre-Save Email Address" 
+                         class="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-xs outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all text-zinc-100">
+                  <button type="submit" class="px-5 py-2.5 rounded-xl text-black font-extrabold text-xs uppercase bg-white hover:bg-orange-500 transition-all active:scale-95">
+                    JOIN
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            <!-- Right Terminal Pane -->
+            <div class="glass-panel p-6 rounded-3xl space-y-4 bg-zinc-950/90 border border-white/10 font-mono">
+              <div class="flex items-center justify-between border-b border-white/[0.05] pb-2">
+                <div class="flex items-center space-x-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+                  <span class="w-2.5 h-2.5 rounded-full bg-yellow-500"></span>
+                  <span class="w-2.5 h-2.5 rounded-full bg-green-500"></span>
+                </div>
+                <span class="text-[9px] uppercase tracking-wider text-green-400">Terminal Shell v2.1</span>
+              </div>
+
+              <!-- Log display -->
+              <div class="h-44 overflow-y-auto text-[10px] space-y-1 text-green-400 leading-normal border-b border-white/[0.05] pb-2 scrollbar-style">
+                <div v-for="(log, i) in terminalLogs" :key="i">
+                  <span class="text-green-600 font-bold">$</span> {{ log }}
+                </div>
+              </div>
+
+              <!-- Shell input form -->
+              <form @submit.prevent="executeTerminalCommand" class="flex items-center space-x-2">
+                <span class="text-green-600 font-bold">$</span>
+                <input type="text" v-model="terminalInput" placeholder="Type command (try: help)" 
+                       class="flex-1 bg-transparent border-none outline-none text-[11px] text-green-400 w-full placeholder-green-800">
+                <button type="submit" class="text-xs text-green-500 hover:text-green-300 font-bold">SEND</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+      </transition>
+    </main>
+
+    <!-- HIDDEN SUPER ADMIN MODAL PANEL (login: admin/admin) -->
+    <div v-if="adminOpen" class="fixed inset-0 z-40 bg-black/95 backdrop-blur-2xl flex items-center justify-center p-4">
+      <div class="glass-panel w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl flex flex-col h-[520px]">
+        <!-- Dashboard Top status -->
+        <div class="p-5 border-b border-white/[0.05] flex items-center justify-between" :style="{ backgroundColor: accentColor + '08' }">
+          <div class="flex items-center space-x-3">
+            <div class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></div>
+            <h2 class="text-base font-bold tracking-tight uppercase">Universe Control Center</h2>
+            <span class="text-[9px] font-mono bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded uppercase font-semibold">Authorized Session</span>
+          </div>
+          <button @click="adminOpen = false" class="text-zinc-400 hover:text-white transition-colors">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+
+        <!-- Dashboard Content Grid -->
+        <div class="flex-1 flex overflow-hidden">
+          <!-- Sidebar selector items -->
+          <div class="w-1/3 border-r border-white/[0.05] p-3 flex flex-col space-y-1.5 overflow-y-auto">
+            <button @click="adminTab = 'text'" class="p-3 text-left rounded-xl text-xs font-mono font-semibold uppercase tracking-wider hover:bg-white/5 transition-all"
+                    :class="{ 'bg-white/10 text-white': adminTab === 'text', 'text-zinc-500': adminTab !== 'text' }">
+              Static Content
+            </button>
+            <button @click="adminTab = 'tours'" class="p-3 text-left rounded-xl text-xs font-mono font-semibold uppercase tracking-wider hover:bg-white/5 transition-all"
+                    :class="{ 'bg-white/10 text-white': adminTab === 'tours', 'text-zinc-500': adminTab !== 'tours' }">
+              Tours Manager
+            </button>
+            <button @click="adminTab = 'styles'" class="p-3 text-left rounded-xl text-xs font-mono font-semibold uppercase tracking-wider hover:bg-white/5 transition-all"
+                    :class="{ 'bg-white/10 text-white': adminTab === 'styles', 'text-zinc-500': adminTab !== 'styles' }">
+              Style Engine
+            </button>
+            <button @click="adminTab = 'news'" class="p-3 text-left rounded-xl text-xs font-mono font-semibold uppercase tracking-wider hover:bg-white/5 transition-all"
+                    :class="{ 'bg-white/10 text-white': adminTab === 'news', 'text-zinc-500': adminTab !== 'news' }">
+              News Publisher
+            </button>
+            <button @click="adminTab = 'giveaway'" class="p-3 text-left rounded-xl text-xs font-mono font-semibold uppercase tracking-wider hover:bg-white/5 transition-all"
+                    :class="{ 'bg-white/10 text-white': adminTab === 'giveaway', 'text-zinc-500': adminTab !== 'giveaway' }">
+              Giveaway Panel
+            </button>
+            <button @click="resetToDefaultsAll" class="p-3 text-left rounded-xl text-xs font-mono text-red-400 font-bold uppercase tracking-wider hover:bg-red-500/10 transition-all mt-auto">
+              Master Reset
+            </button>
+          </div>
+
+          <!-- Main Input Field Editor areas -->
+          <div class="w-2/3 p-6 overflow-y-auto space-y-4">
+            
+            <!-- Admin TEXT section -->
+            <div v-if="adminTab === 'text'" class="space-y-4">
+              <h3 class="text-xs font-mono text-zinc-500 uppercase border-b border-white/[0.05] pb-2">Hero Text Settings</h3>
+              <div>
+                <label class="text-[9px] font-mono text-zinc-400 block mb-1">Artist Name Heading</label>
+                <input type="text" v-model="staticContent.heroName" @input="saveToStorage" 
+                       class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-xs outline-none text-zinc-100 placeholder-zinc-700">
+              </div>
+              <div>
+                <label class="text-[9px] font-mono text-zinc-400 block mb-1">Subline Bio Description</label>
+                <textarea rows="4" v-model="staticContent.heroDescription" @input="saveToStorage" 
+                          class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-xs outline-none text-zinc-100 placeholder-zinc-700 resize-none"></textarea>
+              </div>
+            </div>
+
+            <!-- Admin TOURS section -->
+            <div v-else-if="adminTab === 'tours'" class="space-y-4">
+              <div class="flex justify-between items-center border-b border-white/[0.05] pb-2">
+                <h3 class="text-xs font-mono text-zinc-500 uppercase">Interactive Tour Manager</h3>
+                <button @click="addNewTourRow" class="text-[9px] font-mono px-2 py-1 bg-white/10 text-white rounded hover:bg-white/20">Add Tour</button>
+              </div>
+
+              <!-- List of tour rows to adjust -->
+              <div class="space-y-3">
+                <div v-for="(tour, i) in activeTours" :key="tour.id" class="p-3 bg-white/[0.02] border border-white/5 rounded-2xl flex flex-col space-y-2">
+                  <div class="grid grid-cols-2 gap-2 text-xs">
+                    <input type="text" v-model="tour.city" placeholder="City" @input="saveToStorage" class="bg-black/30 border border-white/10 px-2 py-1 text-zinc-100 rounded">
+                    <input type="text" v-model="tour.country" placeholder="Country" @input="saveToStorage" class="bg-black/30 border border-white/10 px-2 py-1 text-zinc-100 rounded">
+                  </div>
+                  <div class="grid grid-cols-3 gap-1.5 text-xs">
+                    <input type="text" v-model="tour.venue" placeholder="Venue" @input="saveToStorage" class="bg-black/30 border border-white/10 px-2 py-1 text-zinc-100 rounded col-span-2">
+                    <input type="text" v-model="tour.date" placeholder="Date" @input="saveToStorage" class="bg-black/30 border border-white/10 px-2 py-1 text-zinc-100 rounded">
+                  </div>
+                  <div class="flex justify-between items-center pt-1.5 border-t border-white/[0.03]">
+                    <label class="flex items-center space-x-1.5 text-[10px] font-mono cursor-pointer">
+                      <input type="checkbox" v-model="tour.soldOut" @change="saveToStorage">
+                      <span>Sold Out Status</span>
+                    </label>
+                    <button @click="deleteTour(tour.id)" class="text-[9px] font-mono text-red-400 hover:underline">Remove</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Admin STYLES section -->
+            <div v-else-if="adminTab === 'styles'" class="space-y-4">
+              <h3 class="text-xs font-mono text-zinc-500 uppercase border-b border-white/[0.05] pb-2">Style Engine Theme Settings</h3>
+              
+              <!-- Primary Accent Color Picker and standard selectors -->
+              <div class="space-y-2">
+                <label class="text-[9px] font-mono text-zinc-400 block">Primary Accent Theme Color</label>
+                <div class="flex items-center space-x-3">
+                  <input type="color" v-model="accentColor" @input="handleColorChange" class="w-8 h-8 rounded border-none cursor-pointer bg-transparent">
+                  <span class="text-xs font-mono text-zinc-300">{{ accentColor }}</span>
+                </div>
+              </div>
+
+              <!-- Quick Palette grid -->
+              <div class="space-y-1 pt-1">
+                <span class="text-[8px] font-mono text-zinc-500 uppercase block">Quick Presets</span>
+                <div class="flex flex-wrap gap-2">
+                  <button @click="selectPresetColor('#FF5C00')" class="w-6 h-6 rounded-full bg-[#FF5C00] border border-white/20" title="Cosmic Sunset"></button>
+                  <button @click="selectPresetColor('#00FFCC')" class="w-6 h-6 rounded-full bg-[#00FFCC] border border-white/20" title="Digital Mint"></button>
+                  <button @click="selectPresetColor('#FF007F')" class="w-6 h-6 rounded-full bg-[#FF007F] border border-white/20" title="Electric Rose"></button>
+                  <button @click="selectPresetColor('#7000FF')" class="w-6 h-6 rounded-full bg-[#7000FF] border border-white/20" title="Synthetic Violet"></button>
+                  <button @click="selectPresetColor('#FFFFFF')" class="w-6 h-6 rounded-full bg-[#FFFFFF] border border-white/20" title="Pristine Lunar"></button>
+                </div>
+              </div>
+
+              <!-- Particle density customizer -->
+              <div class="pt-2">
+                <label class="text-[9px] font-mono text-zinc-400 block mb-1">Cosmic Particle Density: {{ particleCount }}</label>
+                <input type="range" min="20" max="250" step="10" v-model="particleCount" @input="handleParticleCountChange" class="w-full accent-orange-500">
+              </div>
+
+              <!-- Font Scale Customizer -->
+              <div class="pt-2 border-t border-white/[0.05]">
+                <label class="text-[9px] font-mono text-zinc-400 block mb-1">Interactive Glow Opacity</label>
+                <input type="range" min="10" max="90" step="5" v-model="glowOpacity" @input="saveToStorage" class="w-full accent-orange-500">
+              </div>
+            </div>
+
+            <!-- Admin NEWS section -->
+            <div v-else-if="adminTab === 'news'" class="space-y-4">
+              <div class="flex justify-between items-center border-b border-white/[0.05] pb-2">
+                <h3 class="text-xs font-mono text-zinc-500 uppercase">News Desk Manager</h3>
+                <button @click="addNewNewsItem" class="text-[9px] font-mono px-2 py-1 bg-white/10 text-white rounded hover:bg-white/20">Create Article</button>
+              </div>
+
+              <div class="space-y-3">
+                <div v-for="news in newsFeed" :key="news.id" class="p-3 bg-white/[0.02] border border-white/5 rounded-2xl flex flex-col space-y-2">
+                  <div class="grid grid-cols-2 gap-2 text-xs">
+                    <input type="text" v-model="news.title" placeholder="Title" @input="saveToStorage" class="bg-black/30 border border-white/10 px-2 py-1 text-zinc-100 rounded">
+                    <input type="text" v-model="news.tag" placeholder="Channel Tag (eg. RELEASES)" @input="saveToStorage" class="bg-black/30 border border-white/10 px-2 py-1 text-zinc-100 rounded">
+                  </div>
+                  <textarea rows="3" v-model="news.content" placeholder="Body Content" @input="saveToStorage" class="bg-black/30 border border-white/10 px-2 py-1 text-xs text-zinc-100 rounded resize-none"></textarea>
+                  <div class="text-right">
+                    <button @click="deleteNewsItem(news.id)" class="text-[9px] font-mono text-red-400 hover:underline">Remove Article</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Admin GIVEAWAYS section -->
+            <div v-else-if="adminTab === 'giveaway'" class="space-y-4">
+              <h3 class="text-xs font-mono text-zinc-500 uppercase border-b border-white/[0.05] pb-2">Giveaways Configuration</h3>
+              
+              <div>
+                <label class="text-[9px] font-mono text-zinc-400 block mb-1">Raffle Entrant Count (Simulation multiplier)</label>
+                <div class="flex items-center space-x-3">
+                  <input type="number" v-model="giveawayEntriesCount" @input="saveToStorage" class="w-1/2 bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-xs outline-none text-zinc-100">
+                  <button @click="addTestRaffleEntrants" class="text-[9px] font-mono px-2.5 py-2 bg-white/10 hover:bg-white/20 rounded uppercase text-white leading-none">Inject +10 Entrants</button>
+                </div>
+              </div>
+
+              <!-- List of prize configurations -->
+              <div class="space-y-2 pt-2 border-t border-white/[0.05]">
+                <span class="text-[9px] font-mono text-zinc-400 block mb-1">Spin Wheel Sectors (Rotor Prizes)</span>
+                <div v-for="(prize, idx) in wheelPrizes" :key="idx" class="flex items-center space-x-2">
+                  <span class="text-xs font-mono text-zinc-500 w-6">#{{ idx+1 }}</span>
+                  <input type="text" v-model="wheelPrizes[idx]" @input="saveToStorage" class="flex-grow bg-black/40 border border-white/10 rounded-xl px-3 py-1.5 text-xs outline-none text-zinc-100">
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- FULL SCREEN IMAGE LIGHTBOX OVERLAY -->
+    <div v-if="lightboxOpen" class="fixed inset-0 z-50 bg-black/98 backdrop-blur-3xl flex flex-col justify-between p-6">
+      <div class="flex justify-between items-center">
+        <span class="text-[10px] font-mono tracking-widest text-zinc-500 uppercase">{{ lightboxImg.category }} Overview</span>
+        <button @click="lightboxOpen = false" class="w-10 h-10 rounded-full bg-white/5 border border-white/15 flex items-center justify-center text-white hover:bg-white/10">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="flex flex-col items-center justify-center flex-grow p-4 space-y-4">
+        <!-- Huge central graphic -->
+        <span class="font-display font-black text-white/[0.015] text-9xl absolute select-none">NONLY</span>
+        <div class="w-72 h-72 rounded-3xl bg-zinc-900 border-2 border-white/15 shadow-2xl flex flex-col items-center justify-center relative overflow-hidden" 
+             :style="{ borderColor: accentColor + '33' }">
+          <div class="absolute inset-0 bg-gradient-to-tr opacity-10" :style="{ from: accentColor, to: '#312E81' }"></div>
+          <span class="font-display font-extrabold text-white text-6xl select-none">N{{ galleryData.indexOf(lightboxImg) + 1 }}</span>
+          <span class="absolute bottom-4 right-4 text-[10px] font-mono text-zinc-400">Atmospheric Resolution Overlay</span>
+        </div>
+        
+        <div class="text-center space-y-1.5 max-w-sm z-10">
+          <h3 class="text-lg font-bold tracking-wide uppercase">{{ lightboxImg.title }}</h3>
+          <p class="text-xs text-zinc-400 font-light">{{ lightboxImg.description }}</p>
+        </div>
+      </div>
+
+      <div class="text-center pb-2">
+        <span class="text-[9px] font-mono text-zinc-500 leading-none">Photo Record date: {{ lightboxImg.date }} | SECURED DECOY PASS</span>
+      </div>
+    </div>
+
+
+    <!-- INTERACTIVE BOOKING SEAT DRAWER MODAL -->
+    <div v-if="bookingModalOpen" class="fixed inset-0 z-40 bg-black/95 backdrop-blur-2xl flex items-center justify-center p-4 animate-fade-in">
+      <div class="glass-panel w-full max-w-md rounded-3xl p-6 space-y-6 relative border-white/10 shadow-2xl">
+        <div class="flex justify-between items-center border-b border-white/[0.05] pb-3">
+          <div>
+            <span class="text-[9px] font-mono uppercase tracking-widest text-[#FF5C00]" :style="{ color: accentColor }">Digital Pass Provision</span>
+            <h3 class="text-base font-bold uppercase mt-1">Book: {{ selectedTour.city }}</h3>
+          </div>
+          <button @click="bookingModalOpen = false" class="text-zinc-500 hover:text-white transition-colors">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+
+        <div class="space-y-4">
+          <!-- Pass information overview -->
+          <div class="p-4 rounded-2xl bg-zinc-950 border border-white/5 space-y-2">
+            <div class="flex justify-between text-xs font-mono text-zinc-400">
+              <span>Date Badge:</span>
+              <span class="text-white">{{ selectedTour.date }}</span>
+            </div>
+            <div class="flex justify-between text-xs font-mono text-zinc-400">
+              <span>Primary Venue:</span>
+              <span class="text-white">{{ selectedTour.venue }}</span>
+            </div>
+          </div>
+
+          <!-- Input Fields for ticket configuration -->
+          <div class="space-y-3">
+            <div>
+              <label class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Aesthetic Pass Level</label>
+              <select v-model="bookingTier" class="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-zinc-100 outline-none focus:border-orange-500">
+                <option value="General">General Admission (25 Coins)</option>
+                <option value="VIP Lounge">VIP Lounge Access (60 Coins)</option>
+                <option value="Ultimate Backstage">Ultimate Passes (120 Coins)</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Fan Name Invitation Card</label>
+              <input type="text" v-model="bookingPassName" placeholder="Enter name card (eg. Sarah Connor)" 
+                     class="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-zinc-100 outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all">
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center pt-2 border-t border-white/[0.05] text-xs font-mono">
+            <span class="text-zinc-500">Order Subtotal:</span>
+            <span class="text-base font-bold text-white">{{ bookingCost }} Cosmic Coins</span>
+          </div>
+
+          <button @click="finalizeMembershipPurchase" class="w-full py-3 rounded-full text-xs font-bold uppercase tracking-widest text-black bg-white hover:bg-orange-500 active:scale-95 transition-all text-center">
+            Finalize Simulated Pass Key
+          </button>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- APPAREL BASKET CART DRAWER MODAL -->
+    <div v-if="cartOpen" class="fixed inset-0 z-40 bg-black/92 backdrop-blur-2xl flex justify-end">
+      <div class="glass-panel w-full max-w-md h-full flex flex-col justify-between p-6 shadow-2xl relative border-l border-white/10">
+        
+        <div class="space-y-6 flex-grow overflow-y-auto pr-2">
+          <!-- Drawer Top -->
+          <div class="flex justify-between items-center border-b border-white/[0.05] pb-3">
+            <div class="flex items-center space-x-2">
+              <span class="material-symbols-outlined text-zinc-300">shopping_bag</span>
+              <h3 class="text-base font-bold uppercase tracking-wide">Basket Vault</h3>
+            </div>
+            <button @click="cartOpen = false" class="text-zinc-500 hover:text-white transition-colors">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+
+          <!-- Basket Item rows -->
+          <div v-if="cartItems.length === 0" class="py-12 text-center text-zinc-500 space-y-3">
+            <span class="material-symbols-outlined text-4xl block opacity-40">shopping_cart_off</span>
+            <p class="text-xs">Your apparel basket matches deep space emptiness.</p>
+          </div>
+
+          <div v-else class="space-y-4">
+            <div v-for="item in cartItems" :key="item.cartId" class="flex justify-between items-center p-3.5 bg-white/[0.02] border border-white/5 rounded-2xl">
+              <div class="flex items-center space-x-3.5">
+                <span class="material-symbols-outlined text-xl text-zinc-400">{{ item.icon }}</span>
+                <div>
+                  <h4 class="text-xs font-bold">{{ item.name }}</h4>
+                  <span class="text-[9px] font-mono text-zinc-500 uppercase">{{ item.size }}</span>
+                </div>
+              </div>
+              <div class="flex items-center space-x-4">
+                <span class="text-xs font-mono font-bold" :style="{ color: accentColor }">{{ item.price }} C</span>
+                <button @click="removeFromCart(item.cartId)" class="text-red-400 hover:text-red-300">
+                  <span class="material-symbols-outlined text-sm">delete</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Drawer Bottom summary and Mock checkout logic -->
+        <div class="border-t border-white/[0.05] pt-4 space-y-4">
+          <div class="flex justify-between items-center font-mono text-xs">
+            <span class="text-zinc-500 uppercase">Subtotal basket:</span>
+            <span class="text-base font-bold text-white">{{ cartSubtotal }} Coins</span>
+          </div>
+
+          <div class="p-3 bg-white/[0.02] border border-white/5 rounded-xl text-[10px] text-zinc-400 leading-normal">
+            Transactions utilize virtual Cosmic Balance. Winners of the giveaway rotor spin can redeem and clear orders immediately.
+          </div>
+
+          <button @click="mockCartCheckout" :disabled="cartItems.length === 0"
+                  class="w-full py-3.5 rounded-full text-xs font-bold uppercase tracking-widest text-black bg-white hover:bg-orange-500 disabled:opacity-50 active:scale-95 transition-all text-center">
+            Checkout Basket Nodes
+          </button>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- SUPER COOL AMBIENT SECRET PIN LOGIN PROMPT OVERLAY -->
+    <div v-if="loginPromptOpen" class="fixed inset-0 z-50 bg-black/98 flex items-center justify-center p-4">
+      <div class="glass-panel w-full max-w-sm rounded-[32px] p-8 space-y-6 border border-white/10 shadow-2xl relative text-center">
+        <div class="space-y-2">
+          <div class="w-12 h-12 rounded-full border border-white/15 bg-white/5 mx-auto flex items-center justify-center">
+            <span class="material-symbols-outlined text-lg" :style="{ color: accentColor }">lock</span>
+          </div>
+          <h3 class="text-lg font-bold uppercase tracking-wider">Authorize Session</h3>
+          <p class="text-[10px] text-zinc-500 uppercase tracking-widest font-mono">Input developer passcode parameters</p>
+        </div>
+
+        <form @submit.prevent="authenticateAdmin" class="space-y-4">
+          <div>
+            <input type="text" v-model="loginUser" required placeholder="User Address (admin)" 
+                   class="w-full bg-zinc-950 border border-white/10 rounded-2xl px-4 py-3 text-xs outline-none focus:border-orange-500 text-center uppercase tracking-widest text-white">
+          </div>
+          <div>
+            <input type="password" v-model="loginPass" required placeholder="Pin Credentials (admin)" 
+                   class="w-full bg-zinc-950 border border-white/10 rounded-2xl px-4 py-3 text-xs outline-none focus:border-orange-500 text-center uppercase tracking-widest text-white">
+          </div>
+          <div class="flex space-x-2 pt-2">
+            <button type="button" @click="loginPromptOpen = false" class="w-1/2 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider border border-white/10 text-zinc-400 hover:text-white transition-all">Cancel</button>
+            <button type="submit" class="w-1/2 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider text-black bg-white hover:bg-orange-500 transition-all">Enter</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+
+    <!-- PRETTY FIXED FOOTER COMPACT NAVIGATION TABS BAR (Frosted Class Theme styling) -->
+    <footer class="fixed bottom-6 left-6 right-6 z-30 flex justify-center">
+      <div class="glass-panel rounded-full h-16 flex items-center justify-between px-3 md:px-6 py-2 max-w-lg w-full shadow-2xl relative border-white/20">
+        
+        <!-- Home Button -->
+        <button @click="navigate('home')" class="w-11 h-11 rounded-full flex flex-col items-center justify-center transition-all duration-300 border border-transparent"
+                :class="{ 'tab-active pointer-events-none': activeTab === 'home' }" title="Portal Core ID">
+          <span class="material-symbols-outlined text-[19px]">home</span>
+          <span class="text-[8px] uppercase tracking-wider font-semibold font-mono mt-0.5 max-md:hidden">Core</span>
+        </button>
+
+        <!-- Tours Button -->
+        <button @click="navigate('tours')" class="w-11 h-11 rounded-full flex flex-col items-center justify-center transition-all duration-300 border border-transparent"
+                :class="{ 'tab-active pointer-events-none': activeTab === 'tours' }" title="Tours Broadcast">
+          <span class="material-symbols-outlined text-[19px]">confirmation_number</span>
+          <span class="text-[8px] uppercase tracking-wider font-semibold font-mono mt-0.5 max-md:hidden">Tours</span>
+        </button>
+
+        <!-- Dynamic Giveaways Rotor Core button (Central action widget) -->
+        <button @click="navigate('giveaways')" class="w-13 h-13 -translate-y-2 rounded-full flex items-center justify-center shadow-2xl transition-all duration-300 bg-white hover:scale-110 text-black p-3"
+                :style="{ background: activeTab === 'giveaways' ? accentColor : '#FFFFFF' }" title="Quantum Rotor Spins">
+          <span class="material-symbols-outlined text-[20px]" :style="{ color: activeTab === 'giveaways' ? '#FFFFFF' : '#000000' }">rotate_left</span>
+        </button>
+
+        <!-- Gallery Option -->
+        <button @click="navigate('gallery')" class="w-11 h-11 rounded-full flex flex-col items-center justify-center transition-all duration-300 border border-transparent"
+                :class="{ 'tab-active pointer-events-none': activeTab === 'gallery' }" title="Cosmic Snapshot Frames">
+          <span class="material-symbols-outlined text-[19px]">grid_view</span>
+          <span class="text-[8px] uppercase tracking-wider font-semibold font-mono mt-0.5 max-md:hidden">Frames</span>
+        </button>
+
+        <!-- Contacts Option -->
+        <button @click="navigate('contacts')" class="w-11 h-11 rounded-full flex flex-col items-center justify-center transition-all duration-300 border border-transparent"
+                :class="{ 'tab-active pointer-events-none': activeTab === 'contacts' }" title="Send System Pulse">
+          <span class="material-symbols-outlined text-[19px]">terminal</span>
+          <span class="text-[8px] uppercase tracking-wider font-semibold font-mono mt-0.5 max-md:hidden">Console</span>
+        </button>
+
+        <!-- Secret subtle Trigger for Authorization System -->
+        <button @click="loginPromptOpen = true" class="w-6 h-6 rounded-full flex items-center justify-center opacity-10 hover:opacity-80 transition-opacity" title="Control authorization keys">
+          <span class="material-symbols-outlined text-[11px]">lock_open</span>
+        </button>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Audio Synth & Dynamic web setup logic script -->
+  <script>
+    const { createApp, ref, computed, onMounted, onBeforeUnmount } = Vue;
+
+    createApp({
+      setup() {
+        // Essential states and arrays
+        const loading = ref(true);
+        const preloaderProgress = ref(0);
+        const activeTab = ref('home');
+        const accentColor = ref('#FF5C00');
+        const glowOpacity = ref(40);
+        const particleCount = ref(100);
+        const fakeLiveCount = ref(14250);
+        const virtualCoins = ref(150);
+        const glitchActive = ref(false);
+
+        // Core admin panel authorizations
+        const adminOpen = ref(false);
+        const adminTab = ref('text');
+        const loginPromptOpen = ref(false);
+        const loginUser = ref('');
+        const loginPass = ref('');
+
+        // Giveaway rotor variables
+        const spinning = ref(false);
+        const wheelDegree = ref(0);
+        const wheelTransition = ref('0s');
+        const giveawayRegName = ref('');
+        const giveawayRegEmail = ref('');
+        const giveawayEntriesCount = ref(2450);
+
+        // Tickets provisions parameters
+        const bookingModalOpen = ref(false);
+        const selectedTour = ref(null);
+        const bookingTier = ref('General');
+        const bookingPassName = ref('');
+        const userTickets = ref([]);
+
+        // Merch Cart variables
+        const cartOpen = ref(false);
+        const cartItems = ref([]);
+
+        // Gallery & text inputs
+        const lightboxOpen = ref(false);
+        const lightboxImg = ref(null);
+        const newsLetterEmail = ref('');
+
+        // Play/Pause sound generator pad
+        const padActive = ref(false);
+        const visualizerPulseWaves = ref(Array(6).fill(4));
+
+        // TOASTS list
+        const toasts = ref([]);
+
+        // Text Content Config
+        const staticContent = ref({
+          heroName: 'NONLY',
+          heroDescription: 'An immersive digital ambient synth ecosystem by world electronic producer Nonly. Explore synthesized dimensions, secure holographic live tickets, engage in custom quantum drops, and view premium apparel collections.'
+        });
+
+        // Interactive Tour static initial lines
+        const toursInit = [
+          { id: 1, city: 'Kyoto', country: 'Japan', venue: 'Zen Echo Halls', date: 'Oct 24', soldOut: false, timeLeft: '19 hours' },
+          { id: 2, city: 'London', country: 'United Kingdom', venue: 'Royal Horizon Dome', date: 'Nov 02', soldOut: false, timeLeft: '3 days' },
+          { id: 3, city: 'Manchester', country: 'United Kingdom', venue: 'Warehouse Node 102', date: 'Nov 08', soldOut: false, timeLeft: '5 days' },
+          { id: 4, city: 'Berlin', country: 'Germany', venue: 'Kraftwerk Vault', date: 'Nov 18', soldOut: true, timeLeft: 'Sold Out' },
+          { id: 5, city: 'Tokyo', country: 'Japan', venue: 'Saitama Cosmic Arena', date: 'Dec 05', soldOut: false, timeLeft: '2 weeks' }
+        ];
+        const activeTours = ref([]);
+
+        // News articles initial
+        const newsInit = [
+          { id: 1, title: 'SYNTHETIC COMPRESSION V2 IS ONLINE', excerpt: 'Deep algorithmic synth modulations available on global streaming layers.', content: 'Our new synthetic compression module integrates atmospheric sub-bass sweeps with dynamic glitch frequencies. Experience true audio modularity on Spotify, Apple Music, and private ambient sound links included in our pre-save broadcasts.', date: 'May 18, 2026', tag: 'SOUND', likes: 1420, liked: false },
+          { id: 2, title: 'ANNUAL TOUR PASSPORT ANNOUNCEMENT', excerpt: 'Tickets for Kyoto, London, and Manchester are available for download.', content: 'Worldwide electronic tour nodes are officially live. All registered membership pass cards can be provisions-synchronized in the Tickets tab under local wallet rules. VIP packages include synthesized vinyl envelopes and visual custom templates signed directly by Nonly.', date: 'May 15, 2026', tag: 'TOUR', likes: 890, liked: false }
+        ];
+        const newsFeed = ref([]);
+
+        // Prizes divisions list
+        const wheelInitPrizes = ['100 COINS', 'VIP PASS', 'SIGNED BOX', '50 COINS', 'THANK YOU', 'FREE SHIRT', 'TRY AGAIN', 'EP ALBUM'];
+        const wheelPrizes = ref([]);
+
+        // Raffle drawing winners list
+        const raffleWinners = ref([
+          { id: 1, name: 'Takahiro from Kyoto', prize: 'Manchester VIP Card' },
+          { id: 2, name: 'Emma from Berlin', prize: 'Signed atmospheric modular vinyl' },
+          { id: 3, name: 'Niko from Rome', prize: '500 Cosmic Coins' }
+        ]);
+
+        // Static merch list
+        const merchCatalog = ref([
+          { id: 1, name: 'SYNTH MATRIX HOODIE', description: 'Over-sized vintage heavy cotton styled with neon blueprint matrix schemas.', price: 50, size: 'M / L / XL', limited: true, icon: 'apparel', bg: 'rgba(255, 92, 0, 0.1)' },
+          { id: 2, name: 'COSMIC ACOUSTIC CD', description: 'Limited clear crystal physical vinyl CD compilation enclosing ambient pads.', price: 30, size: 'Limited CD', limited: false, icon: 'album', bg: 'rgba(112, 0, 255, 0.1)' },
+          { id: 3, name: 'CHRONOMETRIC STRAP', description: 'High tech woven utility wrist accessories printed in custom accent codes.', price: 20, size: 'Adjustable', limited: true, icon: 'watch_button', bg: 'rgba(255, 255, 255, 0.1)' }
+        ]);
+
+        // Terminal Log list and instructions
+        const terminalLogs = ref([
+          'Initial System connection established.',
+          'Type "help" to display operational directives.'
+        ]);
+        const terminalInput = ref('');
+
+        // Realtime logs simulated feed updates
+        const systemActivities = [
+          'just cleared Tokyo Cosmic Tickets!',
+          'joined VIP Sweepstakes drop.',
+          'triggered Synthetic Ambient filter.',
+          'unlocked developer admin locks!',
+          'spent 10 tokens on Rotor spin.',
+          'purchased Synth hoodie!'
+        ];
+        const activeLog = ref([
+          { id: 1, text: 'Marcus from Berlin just cleared Tokyo Cosmic Tickets!', time: 'Moments ago' }
+        ]);
+
+        // Pictures Gallery template placeholders
+        const galleryData = ref([
+          { title: 'Zen Echo Stage Kyoto', category: 'LIVE PERFORMANCE', date: 'April 2026', size: 'large', description: 'Holographic laser projection mappings illuminating deep zen meditation columns.' },
+          { title: 'Synthetic Control Desk', category: 'Behind Scenes', date: 'March 2026', size: 'normal', description: 'Atmospheric matrix synthesizer sweeps, dynamic LFO patches, and modular signal filters.' },
+          { title: 'Neon Dome London', category: 'Live Architecture', date: 'May 2026', size: 'normal', description: 'Ultra widescreen displays projecting procedural dynamic glitch visuals to 12K fans.' }
+        ]);
+
+        // WEB AUDIO SYSTEM - REAL-TIME ATMOSPHERIC OSCILLATOR SOUNDS (Zero dependencies!)
+        let audioCtx = null;
+        let mainMasterVolume = null;
+        let synthOscillator = null;
+        let lfoFilterNode = null;
+        let delayFeedbackNode = null;
+
+        const initializeWebAudioSystem = () => {
+          try {
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContextClass) return;
+            audioCtx = new AudioContextClass();
+
+            // Set up main volume controls
+            mainMasterVolume = audioCtx.createGain();
+            mainMasterVolume.gain.setValueAtTime(0.0, audioCtx.currentTime);
+
+            // Synthesize Deep Ambient low pitch filter sweeps
+            synthOscillator = audioCtx.createOscillator();
+            synthOscillator.type = 'sawtooth';
+            synthOscillator.frequency.setValueAtTime(55, audioCtx.currentTime); // Deep pitch A1 node
+
+            // Add High Quality Lowpass resonant filtering
+            lfoFilterNode = audioCtx.createBiquadFilter();
+            lfoFilterNode.type = 'lowpass';
+            lfoFilterNode.frequency.setValueAtTime(150, audioCtx.currentTime);
+            lfoFilterNode.Q.setValueAtTime(6.0, audioCtx.currentTime);
+
+            // Create delay feedback mapping
+            delayFeedbackNode = audioCtx.createDelay(1.0);
+            delayFeedbackNode.delayTime.setValueAtTime(0.48, audioCtx.currentTime);
+            const feedbackGain = audioCtx.createGain();
+            feedbackGain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+
+            // Loop Connections
+            synthOscillator.connect(lfoFilterNode);
+            lfoFilterNode.connect(mainMasterVolume);
+            
+            // Loop delay loops
+            lfoFilterNode.connect(delayFeedbackNode);
+            delayFeedbackNode.connect(feedbackGain);
+            feedbackGain.connect(delayFeedbackNode);
+            feedbackGain.connect(mainMasterVolume);
+
+            mainMasterVolume.connect(audioCtx.destination);
+
+            // Connect oscillator systems
+            synthOscillator.start();
+            animateAcouSTICWaves();
+          } catch (e) {
+            console.error('Audio synthesis constraints on device web engine.', e);
+          }
+        };
+
+        const toggleSoundtrack = () => {
+          if (!audioCtx) {
+            initializeWebAudioSystem();
+          }
+          if (!audioCtx) return;
+
+          // Resume context if suspended due to screen tap gestures
+          if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+          }
+
+          if (padActive.value) {
+            // Fade Volume down silently
+            mainMasterVolume?.gain.setTargetAtTime(0.0, audioCtx.currentTime, 0.4);
+            padActive.value = false;
+            triggerToast('Ambient modular synthesize streams silenced.');
+          } else {
+            // Fade Volume up gracefully
+            mainMasterVolume?.gain.setTargetAtTime(0.18, audioCtx.currentTime, 0.5);
+            padActive.value = true;
+            triggerToast('Deep atmospheric cosmic pad synthesized mathematically.');
+          }
+        };
+
+        // Modulate synth visualization lines using standard timeouts
+        let animationFrameId = null;
+        const animateAcouSTICWaves = () => {
+          if (padActive.value) {
+            // Modulate real-time visualization values
+            visualizerPulseWaves.value = visualizerPulseWaves.value.map(() => {
+              return `${Math.floor(Math.random() * 24) + 6}px`;
+            });
+
+            // Slowly modulate the lowpass filter sweep frequency
+            const targetFreq = 160 + Math.sin(Date.now() / 1500) * 80;
+            lfoFilterNode?.frequency.setValueAtTime(targetFreq, audioCtx?.currentTime || 0);
+          } else {
+            visualizerPulseWaves.value = visualizerPulseWaves.value.map(() => '4px');
+          }
+          animationFrameId = setTimeout(animateAcouSTICWaves, 120);
+        };
+
+        // TOASTS Dynamic provisioning
+        const triggerToast = (text) => {
+          const id = Date.now() + Math.random();
+          toasts.value.push({ id, text });
+          if (toasts.value.length > 3) toasts.value.shift();
+          setTimeout(() => {
+            dismissToast(id);
+          }, 4500);
+        };
+
+        const dismissToast = (id) => {
+          toasts.value = toasts.value.filter(t => t.id !== id);
+        };
+
+        // Persistent save and storage mapping
+        const loadFromStorage = () => {
+          const storedText = localStorage.getItem('nonly_static_text');
+          if (storedText) staticContent.value = JSON.parse(storedText);
+
+          const storedTours = localStorage.getItem('nonly_tours');
+          if (storedTours) {
+            activeTours.value = JSON.parse(storedTours);
+          } else {
+            activeTours.value = JSON.parse(JSON.stringify(toursInit));
+          }
+
+          const storedColor = localStorage.getItem('nonly_accent_color');
+          if (storedColor) {
+            accentColor.value = storedColor;
+            setCustomCSSThemeProperties(storedColor);
+          }
+
+          const storedNews = localStorage.getItem('nonly_news_feed');
+          if (storedNews) {
+            newsFeed.value = JSON.parse(storedNews);
+          } else {
+            newsFeed.value = JSON.parse(JSON.stringify(newsInit));
+          }
+
+          const storedPrizes = localStorage.getItem('nonly_wheel_prizes');
+          if (storedPrizes) {
+            wheelPrizes.value = JSON.parse(storedPrizes);
+          } else {
+            wheelPrizes.value = [...wheelInitPrizes];
+          }
+
+          const storedTickets = localStorage.getItem('nonly_user_tickets');
+          if (storedTickets) userTickets.value = JSON.parse(storedTickets);
+
+          const storedCoins = localStorage.getItem('nonly_coins_balance');
+          if (storedCoins) virtualCoins.value = parseInt(storedCoins);
+
+          const storedEntries = localStorage.getItem('nonly_raffle_entries');
+          if (storedEntries) giveawayEntriesCount.value = parseInt(storedEntries);
+        };
+
+        const saveToStorage = () => {
+          localStorage.setItem('nonly_static_text', JSON.stringify(staticContent.value));
+          localStorage.setItem('nonly_tours', JSON.stringify(activeTours.value));
+          localStorage.setItem('nonly_accent_color', accentColor.value);
+          localStorage.setItem('nonly_news_feed', JSON.stringify(newsFeed.value));
+          localStorage.setItem('nonly_wheel_prizes', JSON.stringify(wheelPrizes.value));
+          localStorage.setItem('nonly_user_tickets', JSON.stringify(userTickets.value));
+          localStorage.setItem('nonly_coins_balance', virtualCoins.value.toString());
+          localStorage.setItem('nonly_raffle_entries', giveawayEntriesCount.value.toString());
+          
+          setCustomCSSThemeProperties(accentColor.value);
+        };
+
+        const setCustomCSSThemeProperties = (color) => {
+          document.documentElement.style.setProperty('--accent', color);
+          // Convert hex color to rgb approximations smoothly
+          const r = parseInt(color.slice(1,3), 16) || 255;
+          const g = parseInt(color.slice(3,5), 16) || 92;
+          const b = parseInt(color.slice(5,7), 16) || 0;
+          document.documentElement.style.setProperty('--accent-rgb', `${r}, ${g}, ${b}`);
+          document.documentElement.style.setProperty('--glow-color', `rgba(${r}, ${g}, ${b}, 0.4)`);
+        };
+
+        const resetToDefaultsAll = () => {
+          localStorage.clear();
+          accentColor.value = '#FF5C00';
+          staticContent.value = {
+            heroName: 'NONLY',
+            heroDescription: 'An immersive digital ambient synth ecosystem by world electronic producer Nonly. Explore synthesized dimensions, secure holographic live tickets, engage in custom quantum drops, and view premium apparel collections.'
+          };
+          activeTours.value = JSON.parse(JSON.stringify(toursInit));
+          newsFeed.value = JSON.parse(JSON.stringify(newsInit));
+          wheelPrizes.value = [...wheelInitPrizes];
+          userTickets.value = [];
+          virtualCoins.value = 150;
+          giveawayEntriesCount.value = 2450;
+          saveToStorage();
+          adminOpen.value = false;
+          triggerToast('Master files restored successfully to system default specs.');
+        };
+
+        // Navigation parameters
+        const navigate = (tab) => {
+          activeTab.value = tab;
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        const handleLogoClick = () => {
+          glitchActive.value = true;
+          setTimeout(() => { glitchActive.value = false; }, 350);
+          triggerToast('Cosmic sync core pulse modulated.');
+          navigate('home');
+        };
+
+        const playSecretIntroAnim = () => {
+          glitchActive.value = true;
+          setTimeout(() => { glitchActive.value = false; }, 500);
+          triggerToast('Quantum visual noise sweep triggered.');
+        };
+
+        // Tour Helper functions
+        const parseTourDateMonth = (dtStr) => {
+          return dtStr ? dtStr.split(' ')[0] : 'Oct';
+        };
+        const parseTourDateDay = (dtStr) => {
+          return dtStr ? dtStr.split(' ')[1] : '24';
+        };
+
+        const openBookingModal = (tour) => {
+          selectedTour.value = tour;
+          bookingPassName.value = '';
+          bookingTier.value = 'General';
+          bookingModalOpen.value = true;
+        };
+
+        const bookingCost = computed(() => {
+          if (bookingTier.value === 'General') return 25;
+          if (bookingTier.value === 'VIP Lounge') return 60;
+          return 120;
+        });
+
+        const finalizeMembershipPurchase = () => {
+          const cost = bookingCost.value;
+          if (virtualCoins.value < cost) {
+            triggerToast('Insufficient Cosmic coins. Spin the wheel to win more points!');
+            return;
+          }
+
+          // Spend coins
+          virtualCoins.value -= cost;
+          
+          // Construct custom virtual ticket pass card
+          const randomHex = Math.random().toString(16).slice(2, 8).toUpperCase();
+          const p = {
+            id: Date.now(),
+            city: selectedTour.value.city,
+            venue: selectedTour.value.venue,
+            date: selectedTour.value.date,
+            tier: bookingTier.value,
+            name: bookingPassName.value || 'Anonymous Member',
+            code: `N-${randomHex}`,
+            date_bought: new Date().toLocaleDateString()
+          };
+
+          userTickets.value.push(p);
+          saveToStorage();
+
+          bookingModalOpen.value = false;
+          triggerToast(`Virtual Ticket Pass secured for ${selectedTour.value.city}! Check Passbook.`);
+          
+          // Switch view to ticket pass passbook
+          setTimeout(() => {
+            navigate('tickets');
+          }, 800);
+        };
+
+        const voidTicket = (id) => {
+          userTickets.value = userTickets.value.filter(t => t.id !== id);
+          saveToStorage();
+          triggerToast('Cosmic ticket pass successfully voided.');
+        };
+
+        // Giveaway Spin Wheel Core
+        const spinTheWheel = () => {
+          if (spinning.value) return;
+          if (virtualCoins.value < 10) {
+            triggerToast('Rotor spin requires at least 10 Cosmic Coins.');
+            return;
+          }
+
+          virtualCoins.value -= 10;
+          spinning.value = true;
+
+          // Compute angle sweep landing parameters
+          const sectorCount = wheelPrizes.value.length;
+          const randomSectorIndex = Math.floor(Math.random() * sectorCount);
+          
+          const sectorDegrees = 360 / sectorCount;
+          // Calculate Target angle with 4 complete pre-rotations for premium styling
+          const extraDegrees = (randomSectorIndex * sectorDegrees) + (sectorDegrees / 2);
+          const totalTargetDegrees = 1440 + extraDegrees;
+
+          wheelTransition.value = '4.5s';
+          wheelDegree.value = totalTargetDegrees;
+
+          setTimeout(() => {
+            spinning.value = false;
+            const wonPrize = wheelPrizes.value[randomSectorIndex];
+            
+            // Process Prizes
+            if (wonPrize.includes('100 COINS')) {
+              virtualCoins.value += 100;
+              triggerToast(`Spin Result: Won 100 Cosmic Coins! Balance upgraded.`);
+            } else if (wonPrize.includes('50 COINS')) {
+              virtualCoins.value += 50;
+              triggerToast(`Spin Result: Won 50 Cosmic Coins! Balance upgraded.`);
+            } else if (wonPrize.includes('TRY AGAIN')) {
+              triggerToast('Spin Result: Try again. Modulate energy and repeat spin.');
+            } else if (wonPrize.includes('THANK YOU')) {
+              triggerToast('Spin Result: Consolated entry. Received 15 complementary coins.');
+              virtualCoins.value += 15;
+            } else {
+              // Won PHYSICAL Merchandise or custom EP
+              triggerToast(`CONGRATULATIONS! Won: ${wonPrize}. Coupon code registered.`);
+            }
+            
+            // Reset rotation sweep variables silenty for next spins
+            setTimeout(() => {
+              wheelTransition.value = '0s';
+              wheelDegree.value = totalTargetDegrees % 360;
+              saveToStorage();
+            }, 500);
+
+          }, 4500);
+        };
+
+        const claimDailyCoins = () => {
+          virtualCoins.value += 50;
+          saveToStorage();
+          triggerToast('Successfully claimed 50 daily cosmic Coins.');
+        };
+
+        // Giveaway register
+        const registerForGiveaway = () => {
+          giveawayEntriesCount.value += 1;
+          saveToStorage();
+          triggerToast(`Registration submitted safely. Wallet index ${giveawayRegName.value.substring(0, 5)}... loaded.`);
+          giveawayRegName.value = '';
+          giveawayRegEmail.value = '';
+        };
+
+        const addTestRaffleEntrants = () => {
+          giveawayEntriesCount.value += 10;
+          saveToStorage();
+        };
+
+        // News Desk Likes
+        const likeNews = (id) => {
+          newsFeed.value = newsFeed.value.map(n => {
+            if (n.id === id) {
+              if (n.liked) {
+                n.likes -= 1;
+                n.liked = false;
+              } else {
+                n.likes += 1;
+                n.liked = true;
+              }
+            }
+            return n;
+          });
+          saveToStorage();
+        };
+
+        // Immersive Gallery Lightbox
+        const openLightbox = (img) => {
+          lightboxImg.value = img;
+          lightboxOpen.value = true;
+        };
+
+        // Apparel Cart list
+        const addToCart = (item) => {
+          cartItems.value.push({
+            ...item,
+            cartId: Date.now() + Math.random()
+          });
+          triggerToast(`${item.name} added to cart basket.`);
+        };
+
+        const removeFromCart = (cartId) => {
+          cartItems.value = cartItems.value.filter(c => c.cartId !== cartId);
+          triggerToast('Apparel item removed from cart.');
+        };
+
+        const cartCount = computed(() => cartItems.value.length);
+        const cartSubtotal = computed(() => {
+          return cartItems.value.reduce((sum, current) => sum + current.price, 0);
+        });
+
+        const openCartDrawer = () => {
+          cartOpen.value = true;
+        };
+
+        const mockCartCheckout = () => {
+          const total = cartSubtotal.value;
+          if (virtualCoins.value < total) {
+            triggerToast('Insufficient Cosmic coins. Clear daily spins to obtain points.');
+            return;
+          }
+
+          virtualCoins.value -= total;
+          cartItems.value = [];
+          cartOpen.value = false;
+          saveToStorage();
+          triggerToast('Apparel transaction confirmed. Shipment streams queued to digital address.');
+        };
+
+        // Presave Subscription Form
+        const submitNewsletter = () => {
+          triggerToast(`Pre-Save successful! Broadcaster credentials mapped for ${newsLetterEmail.value}.`);
+          newsLetterEmail.value = '';
+        };
+
+        // Secret Admin Authentication
+        const authenticateAdmin = () => {
+          if (loginUser.value.toLowerCase() === 'admin' && loginPass.value.toLowerCase() === 'admin') {
+            loginPromptOpen.value = false;
+            adminOpen.value = true;
+            loginUser.value = '';
+            loginPass.value = '';
+            triggerToast('Access granted. System configuration dashboard unlocked.');
+          } else {
+            triggerToast('Invalid credentials passcode. Entry denied.');
+          }
+        };
+
+        // Admin Edit helpers
+        const addNewTourRow = () => {
+          const newId = activeTours.value.length ? Math.max(...activeTours.value.map(t => t.id)) + 1 : 1;
+          activeTours.value.push({
+            id: newId,
+            city: 'New City',
+            country: 'Country',
+            venue: 'Venue Stage Node',
+            date: 'Nov 25',
+            soldOut: false,
+            timeLeft: '1 day'
+          });
+          saveToStorage();
+        };
+
+        const deleteTour = (id) => {
+          activeTours.value = activeTours.value.filter(t => t.id !== id);
+          saveToStorage();
+        };
+
+        const selectPresetColor = (hex) => {
+          accentColor.value = hex;
+          saveToStorage();
+          triggerToast(`Accent palette updated: ${hex}`);
+        };
+
+        const handleColorChange = () => {
+          saveToStorage();
+        };
+
+        const addNewNewsItem = () => {
+          const newId = newsFeed.value.length ? Math.max(...newsFeed.value.map(n => n.id)) + 1 : 1;
+          newsFeed.value.unshift({
+            id: newId,
+            title: 'HOLOGRAPHIC NOISE TRANSLATION ARCHIVES',
+            excerpt: 'New performance recordings saved within live nodes.',
+            content: 'Review complete high-fidelity multi-angle streams direct from London Echo Arena maps.',
+            date: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
+            tag: 'LIVE',
+            likes: 0,
+            liked: false
+          });
+          saveToStorage();
+        };
+
+        const deleteNewsItem = (id) => {
+          newsFeed.value = newsFeed.value.filter(n => n.id !== id);
+          saveToStorage();
+        };
+
+        // Secret Interactive Console Commands
+        const executeTerminalCommand = () => {
+          const cmd = terminalInput.value.trim().toLowerCase();
+          if (!cmd) return;
+
+          terminalLogs.value.push(cmd);
+          
+          if (cmd === 'help') {
+            terminalLogs.value.push('Available directives:');
+            terminalLogs.value.push(' "help"    - list operations');
+            terminalLogs.value.push(' "status"  - check matrix health');
+            terminalLogs.value.push(' "coins"   - inject complimentary coins');
+            terminalLogs.value.push(' "unlock"  - bypass admin screen locks');
+            terminalLogs.value.push(' "glitch"  - trigger static network noise');
+            terminalLogs.value.push(' "clear"   - clear history buffer');
+          } else if (cmd === 'status') {
+            terminalLogs.value.push('MATRIX TRANSLATION TELEMETRY:');
+            terminalLogs.value.push(' -> Host: Nonly Universe Zone 1');
+            terminalLogs.value.push(' -> State: Stabilized edge structures');
+            terminalLogs.value.push(` -> Connected Nodes: ${fakeLiveCount.value}`);
+            terminalLogs.value.push(` -> Theme Core: ${accentColor.value}`);
+          } else if (cmd === 'coins') {
+            virtualCoins.value += 100;
+            saveToStorage();
+            terminalLogs.value.push('Approved. Credited +100 Cosmic Balance Coins.');
+          } else if (cmd === 'unlock') {
+            adminOpen.value = true;
+            terminalLogs.value.push('Bypass Successful. Dev configs active.');
+          } else if (cmd === 'glitch') {
+            glitchActive.value = true;
+            setTimeout(() => { glitchActive.value = false; }, 1500);
+            terminalLogs.value.push('WARNING: Visual aesthetic matrix overload.');
+          } else if (cmd === 'clear') {
+            terminalLogs.value.push('Logging stream cleared.');
+            setTimeout(() => {
+              terminalLogs.value = ['Logging stream cleared. Ready.'];
+            }, 500);
+          } else {
+            terminalLogs.value.push(`Input directive not recognized: "${cmd}"`);
+          }
+
+          terminalInput.value = '';
+        };
+
+        // Interactive particle count handling
+        const handleParticleCountChange = () => {
+          saveToStorage();
+          restartCanvasParticlesEngine();
+        };
+
+        // Simulated online visitors updates
+        let visitorsInterval = null;
+        let activityStreamInterval = null;
+
+        onMounted(() => {
+          loadFromStorage();
+
+          // Count up preloader progress elegantly
+          const loaderTimer = setInterval(() => {
+            if (preloaderProgress.value < 100) {
+              preloaderProgress.value += Math.floor(Math.random() * 8) + 3;
+              if (preloaderProgress.value > 100) preloaderProgress.value = 100;
+            } else {
+              clearInterval(loaderTimer);
+              setTimeout(() => {
+                loading.value = false;
+              }, 400);
+            }
+          }, 60);
+
+          // Launch canvas particle stream
+          launchCanvasParticlesEngine();
+
+          // Dynamic fake local visitors counter updates
+          visitorsInterval = setInterval(() => {
+            const step = Math.floor(Math.random() * 40) - 18;
+            fakeLiveCount.value += step;
+            if (fakeLiveCount.value < 12000) fakeLiveCount.value = 14100;
+          }, 4500);
+
+          // Simulated action stream triggers
+          activityStreamInterval = setInterval(() => {
+            const names = ['Liam', 'Yuki', 'Sven', 'Mia', 'Aris', 'Zoe', 'Kenzo', 'Chloe'];
+            const cities = ['Berlin', 'Kyoto', 'Manchester', 'London', 'Seoul', 'Tokyo'];
+            const randomName = names[Math.floor(Math.random() * names.length)];
+            const randomCity = cities[Math.floor(Math.random() * cities.length)];
+            const randomAct = systemActivities[Math.floor(Math.random() * systemActivities.length)];
+            
+            const txt = `${randomName} from ${randomCity} ${randomAct}`;
+            activeLog.value.unshift({
+              id: Date.now(),
+              text: txt,
+              time: 'Just now'
+            });
+
+            if (activeLog.value.length > 3) activeLog.value.pop();
+
+            // Sometime trigger floating toast notification
+            if (Math.random() > 0.6) {
+              triggerToast(txt);
+            }
+          }, 11000);
+        });
+
+        onBeforeUnmount(() => {
+          clearInterval(visitorsInterval);
+          clearInterval(activityStreamInterval);
+          clearTimeout(animationFrameId);
+        });
+
+        return {
+          loading,
+          preloaderProgress,
+          activeTab,
+          accentColor,
+          glowOpacity,
+          particleCount,
+          fakeLiveCount,
+          virtualCoins,
+          glitchActive,
+          
+          adminOpen,
+          adminTab,
+          loginPromptOpen,
+          loginUser,
+          loginPass,
+
+          spinning,
+          wheelDegree,
+          wheelTransition,
+          giveawayRegName,
+          giveawayRegEmail,
+          giveawayEntriesCount,
+
+          bookingModalOpen,
+          selectedTour,
+          bookingTier,
+          bookingPassName,
+          userTickets,
+
+          cartOpen,
+          cartItems,
+          cartCount,
+          cartSubtotal,
+
+          lightboxOpen,
+          lightboxImg,
+          newsLetterEmail,
+          padActive,
+          visualizerPulseWaves,
+          toasts,
+          staticContent,
+          activeTours,
+          newsFeed,
+          wheelPrizes,
+          raffleWinners,
+          merchCatalog,
+          terminalLogs,
+          terminalInput,
+          activeLog,
+          galleryData,
+
+          toggleSoundtrack,
+          dismissToast,
+          navigate,
+          handleLogoClick,
+          playSecretIntroAnim,
+          parseTourDateMonth,
+          parseTourDateDay,
+          openBookingModal,
+          bookingCost,
+          finalizeMembershipPurchase,
+          voidTicket,
+          spinTheWheel,
+          claimDailyCoins,
+          registerForGiveaway,
+          addTestRaffleEntrants,
+          likeNews,
+          openLightbox,
+          addToCart,
+          removeFromCart,
+          openCartDrawer,
+          mockCartCheckout,
+          submitNewsletter,
+          authenticateAdmin,
+          addNewTourRow,
+          deleteTour,
+          selectPresetColor,
+          handleColorChange,
+          addNewNewsItem,
+          deleteNewsItem,
+          executeTerminalCommand,
+          handleParticleCountChange,
+          resetToDefaultsAll,
+          saveToStorage
+        };
+      }
+    }).mount('#app');
+
+
+    // CANVAS SCI-FI PARTICLES STREAM COMPONENT
+    let pmId = null;
+    function launchCanvasParticlesEngine() {
+      const canvas = document.getElementById('particles');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      
+      let width = canvas.width = window.innerWidth;
+      let height = canvas.height = window.innerHeight;
+
+      // Listen for window resize
+      window.addEventListener('resize', () => {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+      });
+
+      // Mouse interactive nodes coord
+      let mouse = { x: null, y: null };
+      window.addEventListener('mousemove', (e) => {
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+      });
+
+      // Assemble particle array
+      let particles = [];
+      const density = parseInt(localStorage.getItem('nonly_particles_count')) || 100;
+
+      class Particle {
+        constructor() {
+          this.x = Math.random() * width;
+          this.y = Math.random() * height;
+          this.size = Math.random() * 2 + 0.5;
+          this.speedX = Math.random() * 0.4 - 0.2;
+          this.speedY = Math.random() * 0.4 - 0.2;
+          this.alpha = Math.random() * 0.5 + 0.25;
+        }
+
+        update() {
+          this.x += this.speedX;
+          this.y += this.speedY;
+
+          // Wrap boundaries
+          if (this.x < 0) this.x = width;
+          if (this.x > width) this.x = 0;
+          if (this.y < 0) this.y = height;
+          if (this.y > height) this.y = 0;
+
+          // Connect cursor gravitational dynamics
+          if (mouse.x !== null && mouse.y !== null) {
+            const dx = mouse.x - this.x;
+            const dy = mouse.y - this.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            if (distance < 110) {
+              this.x -= dx * 0.012;
+              this.y -= dy * 0.012;
+            }
+          }
+        }
+
+        draw() {
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`;
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+
+      function init() {
+        particles = [];
+        for (let i = 0; i < density; i++) {
+          particles.push(new Particle());
+        }
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, width, height);
+
+        // Render fine background radial glow from mouse cursor
+        if (mouse.x !== null && mouse.y !== null) {
+          const accentColorVal = localStorage.getItem('nonly_accent_color') || '#FF5C00';
+          const gradient = ctx.createRadialGradient(mouse.x, mouse.y, 10, mouse.x, mouse.y, 180);
+          gradient.addColorStop(0, accentColorVal + '12');
+          gradient.addColorStop(1, 'transparent');
+          ctx.fillStyle = gradient;
+          ctx.fillRect(0, 0, width, height);
+        }
+
+        for (let i = 0; i < particles.length; i++) {
+          particles[i].update();
+          particles[i].draw();
+        }
+
+        // Draw connections lines between particles that are close
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+        ctx.lineWidth = 0.5;
+        for (let i = 0; i < particles.length; i++) {
+          for (let j = i + 1; j < particles.length; j++) {
+            const dx = particles[i].x - particles[j].x;
+            const dy = particles[i].y - particles[j].y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 80) {
+              ctx.beginPath();
+              ctx.moveTo(particles[i].x, particles[i].y);
+              ctx.lineTo(particles[j].x, particles[j].y);
+              ctx.stroke();
+            }
+          }
+        }
+
+        pmId = requestAnimationFrame(animate);
+      }
+
+      init();
+      animate();
+    }
+
+    function restartCanvasParticlesEngine() {
+      if (pmId) cancelAnimationFrame(pmId);
+      setTimeout(launchCanvasParticlesEngine, 200);
+    }
+  </script>
+</body>
+</html>
